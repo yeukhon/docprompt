@@ -23,7 +23,7 @@ class TestChainDirective(unittest.TestCase):
         result = chain_syntax(chain)
         self.assertEqual(expected, result)
 
-    def test_prompt_name_defaultequal(self):
+    def test_prompt_name_default_equal(self):
         chain = [self.prompt, self.name, self.default]
         expected = r'(:prompt:)\s+(?P<question>[^.+^\r\n]+)([\r\n][\s]+)*(:name:)\s+(?P<vname>[^.+^\r\n]+)([\r\n][\s]+)*((:default:)\s+(?P<default>[^.+^\r\n]+))?'
         result = chain_syntax(chain)
@@ -186,7 +186,28 @@ class TestDocPromptAttribute(unittest.TestCase):
                 :prompt: last question [yeukhon]:
                 :name: last_question
                 :default: 'yeukhon'
+
+        """
+        cls.text5 = cls.text4 + """\
+                \n
+                Finally, default only.
+
+                :prompt: secure user question [yeukhon]:
+                :name: secure_question
+                :default: 'yeukhon'
+                :secure: True
         """                
+
+        cls.text6 = cls.text5 + """\
+                \n
+                Finally, default only.
+
+                :prompt: secure password question [yeukhon]:
+                :name: secure_question
+                :default: 'yeukhon'
+                :secure: False
+        """                
+
     def test_text1_attribute_set_correctly(self):
         doc = docprompt(self.text1)
         self.assertEqual(doc.first_question, None)
@@ -238,6 +259,15 @@ class TestDocPromptAttribute(unittest.TestCase):
         self.assertEqual(doc.last_question_choices, None)
         self.assertEqual(doc.last_question_question, 'last question [yeukhon]:')
         self.assertEqual(doc.last_question_has_default, True)
+        self.assertEqual(doc.last_question_secure, None)
+
+    def test_text5_secure_as_true_attribute_set_correctly(self):
+        doc = docprompt(self.text5)
+        self.assertEqual(doc.secure_question_secure, True)
+
+    def test_text6_secure_as_false_attribute_set_correctly(self):
+        doc = docprompt(self.text6)
+        self.assertEqual(doc.secure_question_secure, False)
 
 if __name__ == '__main__':
     unittest.main()
